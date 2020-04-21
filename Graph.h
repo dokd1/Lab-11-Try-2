@@ -1,15 +1,16 @@
-﻿#ifndef GRAPH_H
+#ifndef GRAPH_H
 #define GRAPH_H
 #include <iostream>
-#include "Linkedlist.h"
-#include<list>
+#include <list>
+#include <iterator>
+#include <Linkedlist.h>
+#include <bits/stdc++.h>
 using namespace std;
 class Graph {
 
 public:
     int numVertices;    //Represents the number of vertices in the graph
     List arr[5];
-
     //Constructor
     Graph(int v);
 
@@ -32,12 +33,15 @@ public:
     void inEdges(int);
 
     //searches all the nodes in a depth first manner
-    void depthFirstSearch(int);    //NEEDS TO BE WORKED ON
+    void DFS(bool visited[],int v);
+    int depthFirstSearch();    //NEEDS TO BE WORKED ON
 
     //searches all the nodes in a breadth first manner.
-    void breadthFirstSearch();  //NEEDS TO BE WORKED ON
+    void breadthFirstSearch(int);  //NEEDS TO BE WORKED ON
 
 };
+
+int counter = 0;
 
 Graph::Graph(int numVertices) {             //Constructor
     this->numVertices = numVertices;
@@ -59,23 +63,25 @@ bool Graph::hasEdge(int x, int y) {
 }
 void Graph::outEdges(int x)
 {
-        cout << x << "->";
-        ListNode* head = arr[x].gethead();
-        while (head != nullptr)
-        {
-            cout << head->value << " ";
-            head = head->next;
-        }
-        cout << endl;
+    cout << x << "->";
+    ListNode* head = arr[x].gethead();
+    while (head != nullptr)
+    {
+        cout << head->value << " ";
+        head = head->next;
+    }
+    cout << endl;
 }
-void Graph::inEdges(int x)
-{ 
+
+void Graph::inEdges(int y)
+{
     List inedges;
     for (int i = 0; i < numVertices; i++)
     {
-        if (arr[i].findNode(x)) inedges.insertNode(i);
+        if (arr[i].findNode(y)) inedges.insertNode(i);
     }
     ListNode* temp = inedges.gethead();
+    cout << y << "->";
     while (temp != nullptr)
     {
         cout << temp->value << " ";
@@ -83,17 +89,67 @@ void Graph::inEdges(int x)
     }
     cout << endl;
 }
-void Graph::breadthFirstSearch() {
+
+void Graph::breadthFirstSearch(int v) {
+    // Mark all the vertices as not visited
+    bool *visited = new bool[numVertices];
+    for(int i = 0; i < numVertices; i++)
+        visited[i] = false;
+
+    // Create a queue for BFS
+    list<int> queue;
+
+    // Mark the current node as visited and enqueue it
+    visited[v] = true;
+    queue.push_back(v);
+
+    // 'i' will be used to get all adjacent
+    // vertices of a vertex
+
+    ListNode* head = arr[v].gethead();
+
+    while(!queue.empty()) {
+        // Dequeue a vertex from queue and print it
+        v = queue.front();
+        cout << v << " ";
+        queue.pop_front();
+        while (head != nullptr) {
+            if (!visited[head->value]) { //if adjacent vertex hasn't been visited
+                DFS(visited, head->value); //start a new search with that vertex
+            }
+            head = head->next;
+        }
+    }
 
 }
 
+void Graph::DFS(bool visited[],int v) {
+    //Mark vertex as visited and print it
+    visited[v] = true;
+    cout << v << " ";
 
+    //Traverse the linked list contained at vertexArr[i] (i.e. get all adjacent vertices via recursion)
+    ListNode* head = arr[v].gethead();
+    while (head != nullptr) {
+        if (!visited[head->value]) { //if adjacent vertex hasn't been visited
+            DFS(visited, head->value); //start a new search with that vertex
+        }
+        head = head->next;
+    }
+}
 
+int Graph::depthFirstSearch() {
+    // Mark all the vertices as not visited
+    bool *visited = new bool[numVertices];
+    for (int i = 0; i < numVertices; i++)
+        visited[i] = false;
 
+    for (int i = 0; i < numVertices; i++) {
+        counter++;
+        if (visited[i] == false) {
+            DFS(visited, i);
+        }
+    }
+    return counter;
 
-
-
-
-
-
-#endif // GRAPH_H
+}
